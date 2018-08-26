@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-nfs-poc-svc
+  namespace: shared-services
+  labels:
+    app: rabbitmq-nfs-poc-svc
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 15672
+    targetPort: 15672
+  - name: amqp
+    protocol: TCP
+    port: 5672
+    targetPort: 5672	
+  selector:
+    app: rabbitmq-app
+---
+apiVersion: apps/v1beta2 # for versions prior to 1.9.0
+kind: Deployment
+metadata:
+  name: rabbitmq-depl
+  namespace: shared-services
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-app
+    spec:
+      serviceAccountName: shared-svc-accnt
+      containers:
+      - name: rabbitmq-cnt
+        image: rabbitmq
+        imagePullPolicy: IfNotPresent
+        #privileged: true
+        securityContext:
+          #supplementalGroups: [65534]
+          runAsUser: 0 
+        ports:
+        - containerPort: 15672
+          name: http-port
+          protocol: TCP
+        - containerPort: 5672
+          name: amqp
+          protocol: TCP
+        volumeMounts:
+          # 'name' must match the volume name below.
+          - name: rabbitmq-mnt
+            # Where to mount the volume.
+            mountPath: "/var/lib/rabbitmq/"
+      volumes:
+      - name: rabbitmq-mnt
+        persistentVolumeClaim:
+          claimName: rabbitmq-nfs-pvc       

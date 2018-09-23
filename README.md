@@ -2,7 +2,7 @@
 Sample files for creating PV, PVC, and using them with RabbitMQ deployment
 <br/>
 
-Project has four parsers namely:
+Sample files:
  * [shared-services-ns.yml for creating namespace](yaml/shared-services-ns.yml)
  * [svcAccnt.yml for creating service account](yaml/svcAccnt.yml)
  * [rabbitmq-nfs-pv.yml for creating PersistenceVolume](yaml/rabbitmq-nfs-pv.yml)
